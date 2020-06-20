@@ -1,0 +1,310 @@
+{% raw %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>COVID-19 Case Extraction App</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+    .footerFixed {
+    position: fixed;
+    bottom: 0;
+    width: 100%; 
+    line-height: 0px;
+    background-color: #ce2127;
+    z-index: 1000;
+    color: #f8f9fa;
+    font-weight:bold;
+    }   
+
+    .headderFixed {
+    position: fixed;
+    top: 0;
+    width: 100%; 
+    padding:30px;
+    padding-top: 20px;
+    padding-bottom: 2px;
+    background-color: #ce2127;
+    z-index: 1000;
+    color: #f8f9fa;
+    font-weight:bold;
+    }  
+
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+</head>
+<body ng-app="myApp" ng-controller="myCtrl" style="background-color: #e9ecef;">
+        <div class="headderFixed">  
+        <div class="row">
+                <div class="col-sm-1">
+                </div>
+                <div class="col-sm-10">
+                    <h6>COVID-19 Case Extraction App</h6>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" ng-model="webAddress" style="background-color: #e9ecef; font-size: 12px;" placeholder="Article URL">
+                        <div class="input-group-append">
+                        <button class="btn btn-success" style="font-size: 12px;" type="button" ng-click="getInfo()">Go</button>  
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                </div>
+        </div>
+            
+        </div>  
+        <div class="container" style="margin-top: 120px; margin-bottom: 40px;">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div ng-hide="loading" style="width:100%;  border-radius: 3px; border: #28a745 solid 1px; padding: 0px; font-size: 12px;">
+                            <div ng-hide="loading" style="background-color: #28a745; color: #FFF; padding:10px; font-size:14px; font-weight:bold;">
+                                Article Content <span style="float:right;" ng-show="currentWebAddress != '' "><a href="{{currentWebAddress}}" target="newTab" ><i class="fa fa-link" aria-hidden="true" style="cursor:pointer; color:#FFF;" ></i></a></span>
+
+                            </div>
+                            <div style="width:100%; height:140px;  overflow: auto; padding: 10px; font-size: 12px;">
+                                {{resultData.text}}
+                            </div>
+                        </div>
+                        
+                        <div ng-show="loading" style="width:100%; height:185px; border-radius: 3px; border: #FFF solid 1px; overflow: auto; padding: 0px; font-size: 12px;">
+                            <div ng-show="loading" style="color: #e9ecef; padding:10px; font-size:14px; font-weight:bold;">Article Content</div>
+                            <div style="text-align: center; vertical-align: middle; margin: 10px">
+                                    <div class="spinner-border text-danger"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div ng-show="loading" style="height: 185px; overflow: auto; border-radius: 3px; border: #FFF solid 1px; padding: 10px;">
+                                <div style="text-align: center; vertical-align: middle; margin: 40px">
+                                <div class="spinner-border text-danger"></div>
+                                </div>
+                        </div>
+                        <div ng-hide="loading" style="height: 185px; overflow: auto; border-radius: 3px; border: #28a745 solid 1px; padding: 1px; padding-top:0px;">
+                            <table class="table table-striped" style="font-size: 12px;">
+                                <thead>
+                                    <tr>
+                                    <th style="position: sticky; top: 0; background-color: #28a745; color: #FFF;">Location</th>
+                                    <th style="position: sticky; top: 0; background-color: #28a745; color: #FFF;">Organisation</th>
+                                    <th style="position: sticky; top: 0; background-color: #28a745; color: #FFF;">Person</th>
+                                    <th style="position: sticky; top: 0; background-color: #28a745; color: #FFF;">Common</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="height: 200px; overflow-y: scroll;">
+                                    <tr>
+                                    <td>
+                                        <div ng-repeat="nameText in resultData.category.LOC" >{{nameText}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-repeat="nameText in resultData.category.ORG" >{{nameText}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-repeat="nameText in resultData.category.PER" >{{nameText}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-repeat="nameText in resultData.category.MISC" >{{nameText}}</div>
+                                    </td>
+                                    </tr>
+                                   
+
+                                </tbody>
+                                </table>
+                            </div>
+                    </div>
+                </div>
+                
+
+                <div style="padding: 20px;"></div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div ng-show="loading" style="height: 320px; overflow: auto; border-radius: 3px; border: #FFF solid 1px; padding: 10px;">
+                                <div style="text-align: center; vertical-align: middle; margin: 100px">
+                                <div class="spinner-border text-danger"></div>
+                                </div>
+                        </div>
+                        <div ng-hide="loading" style="height: 320px; overflow: auto; border-radius: 3px; border: #28a745 solid 1px; padding: 1px; padding-top:0px;">
+                            <table class="table table-striped" style="font-size: 12px;">
+                                <thead>
+                                    <tr>
+                                    <th style="position: sticky; top: 0; background-color: #28a745; color: #FFF;">Location(SG)</th>
+                                    <th style="position: sticky; top: 0; background-color: #28a745; color: #FFF;">Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="height: 200px; overflow-y: scroll;">
+                                    <tr ng-repeat="locData in resultData.location">
+                                    <td>{{locData.name}}</td>
+                                    <td>{{locData.count}}</td>
+                                    <!--<td ng-init="randamNum = getRandomInt(1000)">{{randamNum}}</td> -->
+                                    </tr>
+                                   
+
+                                </tbody>
+                                </table>
+                            </div>
+                    </div>
+                    <div class="col-sm-6">
+                            <div  ng-show="loading"  style="border-radius: 3px; border: #FFF solid 1px; padding: 10px; height:320px;">
+                             <div style="color: #e9ecef; padding:10px; font-size:14px; font-weight:bold;">Map</div>
+                                <div style="text-align: center; vertical-align: middle; margin: 60px">
+                                    <div class="spinner-border text-danger"></div>
+                                </div>
+                            </div>
+                            <div  ng-hide="loading" style="border-radius: 3px; border: #28a745 solid 1px; padding: 0px;">
+                                <div  style="background-color: #28a745; color: #FFF; padding:10px; font-size:14px; font-weight:bold;">Map</div>
+                            
+                                <div id="googleMap" style="width:100%;height:278px;" ng-show="showCurrentWebAddress"></div>
+                                <div style="width:100%;height:278px;" ng-hide="showCurrentWebAddress"></div>
+                            </div>
+                            <script>
+                            function myMap() {
+                            
+                            
+                            }
+
+
+                            </script>
+                            
+                            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDclee8gH6rcwGcBniVD3PgIvf_OcTqntI&callback=myMap"></script>
+                                    
+                    </div>
+                </div>
+
+
+        <br><br>      
+        </div>
+
+
+
+<div class="footerFixed" >
+        <div>
+            <table class="table" style="width:100%; height:15px;">
+                <tr style="padding:2px;">
+                <td style="width:50%; padding-top:20px; vertical-align: middle; color:#FFF; font-size: 12px;">Sentient iHack 2020</td>
+                <td style="width:50%; padding-top:20px; vertical-align: middle; text-align:right;; color:#FFF; font-size: 12px;">Mohamed & Mani</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <script>
+        var app = angular.module('myApp', []);
+    
+        app.controller('myCtrl', function($scope, $http) {
+
+            
+            
+
+            $scope.loading = true;
+            $scope.showCurrentWebAddress = false;
+            $scope.resultData = {"text":"", "location" : [], "category" : {} };
+
+            $scope.sgData = [];
+
+            $scope.getRandomInt = function (max) {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+
+            //$scope.webAddress ="https://www.straitstimes.com/singapore/new-coronavirus-cluster-in-tuas-workers-dormitory?cx_testId=20&cx_testVariant=cx_1&cx_artPos=1#cxrecs_s";
+            $scope.webAddress ="";
+            $scope.currentWebAddress ="";
+            $scope.setMap = function(locationData){
+
+                var mapProp= {
+                    center:new google.maps.LatLng(1.340270,103.891959),
+                    zoom:10,
+                    disableDefaultUI: true,
+                };
+
+                
+                var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+                var latLang = [{lat:1.304833, lng:103.8318},{lat:1.4369, lng:103.7864}, {lat:1.3700, lng:103.8496}, {lat:1.3713, lng:103.8925}, {lat:1.3919, lng:103.8763},
+                {lat:1.3526, lng:103.8352}, {lat:1.3067, lng:103.8492}, {lat:1.3498, lng:103.8736}, {lat:1.2998, lng:103.7876}, {lat:1.2848, lng:103.8439}];
+
+                if(locationData.length > 0) {
+                    
+                    for(var index=0; index < locationData.length; index++){
+                       
+                       if(index < 10) {
+                        var marker = new google.maps.Marker({
+                            position:latLang[$scope.getRandomInt(9)],
+                            map :map
+                        });
+                        }
+                    }
+                }
+
+
+            };
+
+            $scope.setMap($scope.resultData.location);
+            
+            
+
+            $scope.getInfo = function(){
+                if($scope.webAddress.startsWith("http:") || $scope.webAddress.startsWith("https:")) {
+                    $scope.loading = true;
+                    $scope.currentWebAddress = "";
+
+                    $scope.currentWebAddress = angular.copy($scope.webAddress);
+                    //alert($scope.currentWebAddress);
+                    var url = "/api/getdata?url="+$scope.webAddress;
+                    $http.get(url)
+                        .then(function(response) {
+                            $scope.resultData = response.data;
+                            $scope.resultData["category"] = JSON.parse(response.data["category"]);
+                            console.log(JSON.stringify($scope.resultData));
+                            $scope.setMap($scope.resultData.location);
+                            $scope.loading = false;
+                            $scope.webAddress = "";
+                            $scope.showCurrentWebAddress = true;
+                
+                     });
+
+                }else {
+                    $('#myModal').modal('show');
+                }
+            }
+
+            $scope.loading = false;
+    
+        });
+    
+    </script>
+
+    <div class="modal fade" id="myModal">
+    <div class="modal-dialog  modal-dialog-centered">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"><i class="fa fa-info-circle text-danger"></i></h4>
+          
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+          Could you enter valid URL.
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+   
+
+</body>
+</html>
+{% endraw %}

@@ -1,0 +1,5 @@
+{
+    "X_API_KEY" : "<REPLACE YOUR KEY HERE>", 
+    "NAMED_ENTITY_RECOGNITION_ENDPOINT"  : "https://apis.sentient.io/microservices/nlp/namedentityrecognition/v0.1/getpredictions",
+    "WEB_SCRAPER_ENDPOINT" : "https://api.sentient.io/microservices/prod/webscraping"
+}
